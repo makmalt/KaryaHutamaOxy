@@ -8,16 +8,29 @@ use App\Models\Barang;
 use App\Models\Supplier;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\Layout\Grid;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Columns\Layout\Split;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\BarangResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\BarangResource\RelationManagers;
+use Filament\Forms\Components\Component;
+use Filament\Forms\Components\Group;
+use Filament\Infolists\Components\Grid as ComponentsGrid;
+use Filament\Infolists\Components\Group as ComponentsGroup;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\Section as ComponentsSection;
+use Filament\Infolists\Components\Split as ComponentsSplit;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Support\Enums\FontWeight;
 
 class BarangResource extends Resource
 {
@@ -37,10 +50,14 @@ class BarangResource extends Resource
                         TextInput::make('harga')->required(),
                         TextInput::make('stok_tersedia')->label('Stok Awal')->required(),
                         Select::make('supplier_id')
+                            ->label('Supplier')
                             ->options(
                                 Supplier::pluck('nama_supplier', 'id')->toArray()
                             )->required(),
-                        FileUpload::make('attachment'), //logika belom jalan
+                        TextInput::make('barcode'),
+                        FileUpload::make('image')
+                            ->label('Gambar(Optional)')
+                            ->uploadingMessage('Uploading...'), //logika belom jalan
                     ])
                     ->columns(1),
             ]);
@@ -56,10 +73,14 @@ class BarangResource extends Resource
                 TextColumn::make('harga')
                     ->label('Harga'),
                 TextColumn::make('stok_tersedia')
-                    ->sortable()->label('Stok'),
+
+                    ->label('Stok'),
                 TextColumn::make('supplier.nama_supplier')
                     ->label('Supplier'),
+                ImageColumn::make('image')
+                    ->circular()
             ])
+            ->defaultSort('stok_tersedia', 'ascending')
             ->filters([
                 //
             ])
@@ -80,6 +101,35 @@ class BarangResource extends Resource
         return [
             //
         ];
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                ComponentsSection::make()
+                    ->schema([
+                        ComponentsSplit::make([
+                            ComponentsGrid::make(2)
+                                ->schema([
+                                    ComponentsGroup::make([
+                                        TextEntry::make('nama_barang'),
+                                        TextEntry::make('deskripsi'),
+                                        TextEntry::make('supplier.nama_supplier'),
+                                    ]),
+                                    ComponentsGroup::make([
+                                        TextEntry::make('harga')
+                                            ->prefix('Rp.'),
+                                        TextEntry::make('stok_tersedia'),
+                                        TextEntry::make('barcode'),
+                                    ])
+                                ]),
+                            ImageEntry::make('image')
+                                ->hiddenLabel()
+                                ->grow(false)
+                        ])->from('lg')
+                    ])
+            ]);
     }
 
     public static function getPages(): array
