@@ -7,13 +7,18 @@ use Filament\Tables;
 use App\Models\Supplier;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Split;
 use Filament\Forms\Components\Section;
+use Filament\Infolists\Components\Grid;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\DeleteAction;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteBulkAction;
 use App\Filament\Resources\SupplierResource\Pages;
@@ -23,6 +28,9 @@ use App\Filament\Resources\SupplierResource\Pages\EditSupplier;
 use App\Filament\Resources\SupplierResource\Pages\ViewSupplier;
 use App\Filament\Resources\SupplierResource\Pages\ListSuppliers;
 use App\Filament\Resources\SupplierResource\Pages\CreateSupplier;
+use Filament\Infolists\Components\Component;
+use Filament\Infolists\Components\Group;
+use Filament\Infolists\Components\Section as ComponentsSection;
 
 class SupplierResource extends Resource
 {
@@ -86,6 +94,18 @@ class SupplierResource extends Resource
         ];
     }
 
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                ComponentsSection::make()
+                    ->schema([
+                        TextEntry::make('nama_supplier'),
+                        TextEntry::make('alamat'),
+                        TextEntry::make('kontak')
+                    ])
+            ]);
+    }
     public static function getPages(): array
     {
         return [
