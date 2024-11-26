@@ -40,12 +40,10 @@ class TransaksiResource extends Resource
                 DateTimePicker::make('tgl_transaksi')
                     ->default(now())
                     ->required(),
-
-                //repeater untuk menambahkan barang secara dinamis
                 Repeater::make('barang_transaksis')
                     ->label('Transaksi') // nama field di database
                     ->relationship('barangTransaksi')
-                    ->reactive() // Jika Anda menggunakan relasi
+                    ->reactive()
                     ->schema([
                         Select::make('barang_id')
                             ->label('Barang')
@@ -87,6 +85,9 @@ class TransaksiResource extends Resource
                                     $totalHarga = $hargaBarang * $state;
                                     $set('total_harga', number_format($totalHarga, 2, '.', ''));
                                 }
+                                $repeaterState = $get('barang_transaksis') ?? [];
+                                $grandTotal = collect($repeaterState)->sum(fn($item) => $item['total_harga'] ?? 0);
+                                $set('grand_total', number_format($grandTotal, 2, '.', ''));
                             }),
                         TextInput::make('total_harga')
                             ->label('Total Harga')
@@ -96,7 +97,12 @@ class TransaksiResource extends Resource
                     ])
                     ->columnSpan('full') // Agar form-nya lebar
                     ->minItems(1) // Minimal 1 barang
-                    ->addActionLabel('Tambah Barang'),
+                    ->addActionLabel('Tambah Barang')
+                    ->afterStateUpdated(function (array $state, callable $set) {
+                        // Hitung grand_total
+                        $grandTotal = collect($state)->sum(fn($item) => $item['total_harga'] ?? 0);
+                        $set('grand_total', number_format($grandTotal, 2, '.', ''));
+                    }),
 
                 // Total transaksi (menghitung total semua barang)
                 TextInput::make('grand_total')
@@ -106,12 +112,6 @@ class TransaksiResource extends Resource
                     ->reactive()
                     ->default(0)
                     ->prefix('Rp. ')
-                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                        $barangTransaksis = $get('barang_transaksis');
-                        $totalHarga = collect($barangTransaksis)->sum('total_harga');
-
-                        $set('grand_total', $totalHarga);
-                    }),
             ]);
     }
 
@@ -162,5 +162,4 @@ class TransaksiResource extends Resource
             'edit' => Pages\EditTransaksi::route('/{record}/edit'),
         ];
     }
-    //Logic transaksi
 }
