@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\DateTimePicker;
 use Illuminate\Validation\ValidationException;
@@ -71,11 +73,20 @@ class TransaksiResource extends Resource
                                 //logic for stok
                                 $barang = Barang::find($get('barang_id'));
                                 if ($barang && $state > $barang->stok_tersedia) {
-                                    throw new \Exception("Jumlah barang melebihi stok tersedia.");
-                                }
+                                    Notification::make()
+                                        ->title('Error')
+                                        ->body('Jumlah barang melebihi stok tersedia.')
+                                        ->danger()
+                                        ->send();
 
-                                $hargaBarang = $get('harga_barang') ?? 0;
-                                $set('total_harga', $hargaBarang * $state);
+                                    $set('quantity', 0);
+                                    $set('total_harga', 0);
+                                } else {
+                                    // Hitung ulang total harga jika stok mencukupi
+                                    $hargaBarang = $get('harga_barang') ?? 0;
+                                    $totalHarga = $hargaBarang * $state;
+                                    $set('total_harga', number_format($totalHarga, 2, '.', ''));
+                                }
                             }),
                         TextInput::make('total_harga')
                             ->label('Total Harga')
@@ -109,6 +120,17 @@ class TransaksiResource extends Resource
         return $table
             ->columns([
                 //
+                TextColumn::make('no_transaksi')
+                    ->label('No Transaksi')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('grand_total')
+                    ->label('Grand Total')
+                    ->prefix('Rp. ')
+                    ->sortable(),
+                TextColumn::make('tgl_transaksi')
+                    ->date('d M Y')
+                    ->sortable(),
             ])
             ->filters([
                 //

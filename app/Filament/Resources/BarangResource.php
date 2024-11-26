@@ -47,8 +47,13 @@ class BarangResource extends Resource
                     ->schema([
                         TextInput::make('nama_barang')->required(),
                         TextInput::make('deskripsi')->nullable(),
-                        TextInput::make('harga')->required(),
-                        TextInput::make('stok_tersedia')->label('Stok Awal')->required(),
+                        TextInput::make('harga')
+                            ->required()
+                            ->numeric(),
+                        TextInput::make('stok_tersedia')
+                            ->label('Stok Awal')
+                            ->required()
+                            ->numeric(),
                         Select::make('supplier_id')
                             ->label('Supplier')
                             ->options(
@@ -69,13 +74,14 @@ class BarangResource extends Resource
             ->columns([
                 //
                 TextColumn::make('nama_barang')
+                    ->searchable()
                     ->label('Nama Barang'),
                 TextColumn::make('harga')
                     ->label('Harga'),
                 TextColumn::make('stok_tersedia')
-
                     ->label('Stok'),
                 TextColumn::make('supplier.nama_supplier')
+                    ->searchable()
                     ->label('Supplier'),
                 ImageColumn::make('image')
                     ->circular()
@@ -119,7 +125,7 @@ class BarangResource extends Resource
                                     ]),
                                     ComponentsGroup::make([
                                         TextEntry::make('harga')
-                                            ->prefix('Rp.'),
+                                            ->prefix('Rp. '),
                                         TextEntry::make('stok_tersedia'),
                                         TextEntry::make('barcode'),
                                     ])
