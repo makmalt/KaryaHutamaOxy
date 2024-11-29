@@ -8,29 +8,33 @@ use App\Models\Barang;
 use App\Models\Supplier;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Facades\Filament;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\Layout\Grid;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Columns\Layout\Split;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\BarangResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\BarangResource\RelationManagers;
-use Filament\Forms\Components\Component;
-use Filament\Forms\Components\Group;
-use Filament\Infolists\Components\Grid as ComponentsGrid;
-use Filament\Infolists\Components\Group as ComponentsGroup;
-use Filament\Infolists\Components\ImageEntry;
-use Filament\Infolists\Components\Section as ComponentsSection;
-use Filament\Infolists\Components\Split as ComponentsSplit;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Support\Enums\FontWeight;
+use Filament\Forms\Components\Actions\Action;
+use Filament\Infolists\Components\ImageEntry;
+use App\Filament\Resources\BarangResource\Pages;
+use AnourValar\EloquentSerialize\Tests\Models\Post;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Infolists\Components\Grid as ComponentsGrid;
+use App\Filament\Resources\BarangResource\RelationManagers;
+use Filament\Infolists\Components\Group as ComponentsGroup;
+use Filament\Infolists\Components\Split as ComponentsSplit;
+use Filament\Infolists\Components\Section as ComponentsSection;
 
 class BarangResource extends Resource
 {
@@ -96,7 +100,32 @@ class BarangResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('delete')
+                    ->action(fn(Barang $record) => $record->delete())
+                    ->requiresConfirmation()
+                    ->modalHeading('Hapus Barang')
+                    ->modalDescription('Anda yakin menghapus barang ini?')
+                    ->color('danger')
+                    ->icon('heroicon-o-trash')
+                    ->modalSubmitActionLabel('Ya, Hapus Barang')
+                    ->modalCancelActionLabel('Batal'),
+                Tables\Actions\Action::make('Add')
+                    ->icon('heroicon-o-plus')
+                    ->form([
+                        TextInput::make('stok_tambahan')
+                            ->label('Jumlah Stok Tambahan')
+                            ->required()
+                            ->numeric()
+                            ->minValue(1),
+                    ])
+                    ->action(function (array $data, Barang $record) {
+                        // Tambahkan stok_tambahan ke stok_tersedia
+                        $record->stok_tersedia += $data['stok_tambahan'];
+                        $record->save();
+                    })
+                    ->modalHeading('Tambah Stok')
+                    ->modalSubmitActionLabel('Simpan')
+                    ->color('success'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -111,7 +140,6 @@ class BarangResource extends Resource
             //
         ];
     }
-
     public static function infolist(Infolist $infolist): Infolist
     {
         return $infolist
