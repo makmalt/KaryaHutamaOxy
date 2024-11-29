@@ -9,6 +9,7 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewSupplier extends ViewRecord
 {
     protected static string $resource = SupplierResource::class;
+    protected ?string $heading = 'Detail Supplier';
 
     protected function getHeaderActions(): array
     {

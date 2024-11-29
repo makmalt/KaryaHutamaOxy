@@ -77,13 +77,16 @@ class BarangResource extends Resource
                     ->searchable()
                     ->label('Nama Barang'),
                 TextColumn::make('harga')
-                    ->label('Harga'),
+                    ->label('Harga')
+                    ->prefix('Rp. ')
+                    ->formatStateUsing(fn($state) => number_format($state, 2, ',', '.')),
                 TextColumn::make('stok_tersedia')
                     ->label('Stok'),
                 TextColumn::make('supplier.nama_supplier')
                     ->searchable()
                     ->label('Supplier'),
                 ImageColumn::make('image')
+                    ->label('Gambar')
                     ->circular()
             ])
             ->defaultSort('stok_tersedia', 'ascending')
@@ -125,7 +128,8 @@ class BarangResource extends Resource
                                     ]),
                                     ComponentsGroup::make([
                                         TextEntry::make('harga')
-                                            ->prefix('Rp. '),
+                                            ->prefix('Rp. ')
+                                            ->formatStateUsing(fn($state) => number_format($state, 2, ',', '.')),
                                         TextEntry::make('stok_tersedia'),
                                         TextEntry::make('barcode'),
                                     ])

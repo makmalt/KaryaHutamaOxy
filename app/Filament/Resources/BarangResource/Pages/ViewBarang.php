@@ -9,6 +9,7 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewBarang extends ViewRecord
 {
     protected static string $resource = BarangResource::class;
+    protected ?string $heading = 'Detail Barang';
     protected function getHeaderActions(): array
     {
         return [

@@ -127,17 +127,20 @@ class TransaksiResource extends Resource
                 TextColumn::make('grand_total')
                     ->label('Grand Total')
                     ->prefix('Rp. ')
+                    ->formatStateUsing(fn($state) => number_format($state, 2, ',', '.'))
                     ->sortable(),
                 TextColumn::make('tgl_transaksi')
                     ->date('d M Y')
                     ->sortable(),
             ])
+            ->defaultSort('tgl_transaksi', 'desc')
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -161,5 +164,19 @@ class TransaksiResource extends Resource
             'view' => Pages\ViewTransaksi::route('/{record}'),
             'edit' => Pages\EditTransaksi::route('/{record}/edit'),
         ];
+    }
+    public static function getNavigationLabel(): string
+    {
+        return 'Transaksi';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Transaksi';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Daftar Transaksi';
     }
 }

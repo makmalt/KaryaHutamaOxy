@@ -56,7 +56,7 @@ class SupplierResource extends Resource
                             ->label('Kontak')
                             ->required(),
                     ])
-                    ->columns(2),
+                    ->columns(1),
             ]);
     }
 
