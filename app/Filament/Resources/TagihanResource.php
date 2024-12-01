@@ -38,7 +38,7 @@ class TagihanResource extends Resource
 {
     protected static ?string $model = Tagihan::class;
     protected static ?string $navigationLabel = 'Tagihan';
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-receipt-percent';
     protected static ?int $navigationSort = 5;
 
     public static function form(Form $form): Form
@@ -105,7 +105,15 @@ class TagihanResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('delete')
+                    ->action(fn(Tagihan $record) => $record->delete())
+                    ->requiresConfirmation()
+                    ->modalHeading('Hapus Tagihan')
+                    ->modalDescription('Anda yakin menghapus tagihan ini?')
+                    ->color('danger')
+                    ->icon('heroicon-o-trash')
+                    ->modalSubmitActionLabel('Ya, Hapus Tagihan')
+                    ->modalCancelActionLabel('Batal'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

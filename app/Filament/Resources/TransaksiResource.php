@@ -28,7 +28,7 @@ class TransaksiResource extends Resource
 {
     protected static ?string $model = Transaksi::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-arrows-right-left';
 
     public static function form(Form $form): Form
     {
@@ -140,7 +140,15 @@ class TransaksiResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('delete')
+                    ->action(fn(Barang $record) => $record->delete())
+                    ->requiresConfirmation()
+                    ->modalHeading('Hapus Transaksi')
+                    ->modalDescription('Anda yakin menghapus transaksi ini?')
+                    ->color('danger')
+                    ->icon('heroicon-o-trash')
+                    ->modalSubmitActionLabel('Ya, Hapus Transaksi')
+                    ->modalCancelActionLabel('Batal'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -165,6 +173,7 @@ class TransaksiResource extends Resource
             'edit' => Pages\EditTransaksi::route('/{record}/edit'),
         ];
     }
+    
     public static function getNavigationLabel(): string
     {
         return 'Transaksi';

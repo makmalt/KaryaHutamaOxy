@@ -78,7 +78,15 @@ class SupplierResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('delete')
+                    ->action(fn(Supplier $record) => $record->delete())
+                    ->requiresConfirmation()
+                    ->modalHeading('Hapus Supplier')
+                    ->modalDescription('Anda yakin menghapus supplier ini?')
+                    ->color('danger')
+                    ->icon('heroicon-o-trash')
+                    ->modalSubmitActionLabel('Ya, Hapus Supplier')
+                    ->modalCancelActionLabel('Batal'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
