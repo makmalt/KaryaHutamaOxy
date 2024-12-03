@@ -49,7 +49,9 @@ class BarangResource extends Resource
                 Section::make('Tambah Barang')
                     ->description('')
                     ->schema([
-                        TextInput::make('nama_barang')->required(),
+                        TextInput::make('nama_barang')
+                            ->required()
+                            ->autocapitalize('words'),
                         TextInput::make('deskripsi')->nullable(),
                         TextInput::make('harga')
                             ->required()
@@ -61,8 +63,22 @@ class BarangResource extends Resource
                         Select::make('supplier_id')
                             ->label('Supplier')
                             ->options(
-                                Supplier::pluck('nama_supplier', 'id')->toArray()
-                            )->required(),
+                                Supplier::all()->pluck('nama_supplier', 'id')
+                            )
+                            ->required()
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set, $get) {
+                                $namaBarang = $get('nama_barang');
+                                $supplierNama = Supplier::find($state)->nama_supplier; // Ambil nama supplier
+                                $set('sku_id', strtoupper(substr($supplierNama, 0, 3)) . '-' . str_replace(' ', '', $namaBarang));
+                            }),
+                        TextInput::make('sku_id')
+                            ->label('SKU')
+                            ->required()
+                            ->unique(table: Barang::class, column: 'sku_id', ignoreRecord: true)
+                            ->readOnly()
+                            ->reactive()
+                            ->helperText('Format: 3 huruf awal supplier diikuti tanda "-" nama barang'),
                         TextInput::make('barcode'),
                         FileUpload::make('image')
                             ->label('Gambar(Optional)')
@@ -77,6 +93,9 @@ class BarangResource extends Resource
         return $table
             ->columns([
                 //
+                TextColumn::make('sku_id')
+                    ->searchable()
+                    ->label('SKU ID'),
                 TextColumn::make('nama_barang')
                     ->searchable()
                     ->label('Nama Barang'),
@@ -91,7 +110,7 @@ class BarangResource extends Resource
                     ->label('Supplier'),
                 ImageColumn::make('image')
                     ->label('Gambar')
-                    ->circular()
+                    ->circular(),
             ])
             ->defaultSort('stok_tersedia', 'ascending')
             ->filters([
@@ -151,6 +170,7 @@ class BarangResource extends Resource
                                 ->schema([
                                     ComponentsGroup::make([
                                         TextEntry::make('nama_barang'),
+                                        TextEntry::make('sku_id'),
                                         TextEntry::make('deskripsi'),
                                         TextEntry::make('supplier.nama_supplier'),
                                     ]),

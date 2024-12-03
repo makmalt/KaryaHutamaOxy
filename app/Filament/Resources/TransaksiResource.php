@@ -11,15 +11,20 @@ use Filament\Tables\Table;
 use App\Models\BarangTransaksi;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\DB;
+use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Exports\TransaksiExporter;
 use Filament\Forms\Components\DateTimePicker;
 use Illuminate\Validation\ValidationException;
+use Filament\Actions\Exports\Enums\ExportFormat;
 use App\Filament\Resources\TransaksiResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TransaksiResource\RelationManagers;
@@ -135,7 +140,29 @@ class TransaksiResource extends Resource
             ])
             ->defaultSort('tgl_transaksi', 'desc')
             ->filters([
-                //
+                Filter::make('created_at')
+                    ->form([
+                        DatePicker::make('created_from'),
+                        DatePicker::make('created_until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    })
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->exporter(TransaksiExporter::class)
+                    ->formats([
+                        ExportFormat::Xlsx,
+                    ])
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -173,7 +200,7 @@ class TransaksiResource extends Resource
             'edit' => Pages\EditTransaksi::route('/{record}/edit'),
         ];
     }
-    
+
     public static function getNavigationLabel(): string
     {
         return 'Transaksi';
