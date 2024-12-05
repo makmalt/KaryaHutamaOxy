@@ -10,11 +10,13 @@ use Nette\Utils\DateTime;
 use Filament\Tables\Table;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\Grid;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\Group;
 use Filament\Infolists\Components\Split;
@@ -24,15 +26,14 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Infolists\Components\ImageEntry;
+use NunoMaduro\Collision\Adapters\Phpunit\State;
 use App\Filament\Resources\TagihanResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\TagihanResource\RelationManagers;
-use Filament\Forms\Components\Component;
-use Filament\Infolists\Components\Section as ComponentsSection;
-use Filament\Infolists\Components\Split as ComponentsSplit;
 use Filament\Infolists\Components\Grid as ComponentsGrid;
 use Filament\Infolists\Components\Group as ComponentsGroup;
-use NunoMaduro\Collision\Adapters\Phpunit\State;
+use Filament\Infolists\Components\Split as ComponentsSplit;
+use App\Filament\Resources\TagihanResource\RelationManagers;
+use Filament\Infolists\Components\Section as ComponentsSection;
 
 class TagihanResource extends Resource
 {
@@ -114,6 +115,16 @@ class TagihanResource extends Resource
                     ->icon('heroicon-o-trash')
                     ->modalSubmitActionLabel('Ya, Hapus Tagihan')
                     ->modalCancelActionLabel('Batal'),
+                Tables\Actions\Action::make('update')
+                    ->color('success')
+                    ->form([
+                        Checkbox::make('status_lunas')
+                            ->label('Status Lunas'),
+                    ])
+                    ->action(function (array $data, Tagihan $record): void {
+                        $record->status_lunas = ($data['status_lunas']);
+                        $record->save();
+                    })
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
