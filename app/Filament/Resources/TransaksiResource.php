@@ -14,8 +14,10 @@ use Illuminate\Support\Facades\DB;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
@@ -28,6 +30,7 @@ use Filament\Actions\Exports\Enums\ExportFormat;
 use App\Filament\Resources\TransaksiResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TransaksiResource\RelationManagers;
+use Illuminate\Support\Arr;
 
 class TransaksiResource extends Resource
 {
@@ -116,7 +119,41 @@ class TransaksiResource extends Resource
                     ->readOnly()
                     ->reactive()
                     ->default(0)
-                    ->prefix('Rp. ')
+                    ->prefix('Rp. '),
+
+                Section::make('Pembayaran')
+                    ->schema([
+                        TextInput::make('cash_input')
+                            ->label('Uang Diterima')
+                            ->numeric()
+                            ->prefix('Rp. ')
+                            ->required()
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                $grandTotal = floatval(str_replace(['Rp. ', ','], '', $get('grand_total')));
+                                $cash = floatval($state);
+
+                                if ($cash < $grandTotal) {
+                                    Notification::make()
+                                        ->title('Error')
+                                        ->body('Uang yang diterima kurang dari total transaksi.')
+                                        ->danger()
+                                        ->send();
+
+                                    $set('cash_input', 0);
+                                    $set('change_amount', 0);
+                                } else {
+                                    $change = $cash - $grandTotal;
+                                    $set('change_amount', number_format($change, 2, '.', ''));
+                                }
+                            }),
+
+                        TextInput::make('change_amount')
+                            ->label('Kembalian')
+                            ->numeric()
+                            ->prefix('Rp. ')
+                            ->readOnly()
+                    ])
             ]);
     }
 
@@ -214,5 +251,12 @@ class TransaksiResource extends Resource
     public static function getPluralModelLabel(): string
     {
         return 'Daftar Transaksi';
+    }
+    public function create(array $data): Model
+    {
+        // Validate and remove cash-related fields before saving
+        $transactionData = Arr::except($data, ['cash_input', 'change_amount']);
+
+        return $this->model::create($transactionData);
     }
 }
