@@ -139,9 +139,6 @@ class TransaksiResource extends Resource
                                         ->body('Uang yang diterima kurang dari total transaksi.')
                                         ->danger()
                                         ->send();
-
-                                    $set('cash_input', 0);
-                                    $set('change_amount', 0);
                                 } else {
                                     $change = $cash - $grandTotal;
                                     $set('change_amount', number_format($change, 2, '.', ''));

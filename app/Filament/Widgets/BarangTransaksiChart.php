@@ -16,32 +16,35 @@ class BarangTransaksiChart extends ChartWidget
         $query = BarangTransaksi::whereNotNull('barang_id');
         $data = Trend::query($query)
             ->between(
-                start: now()->subMonth()->startOfMonth(),
-                end: now()->subMonth()->endOfMonth(),
+                start: now()->startOfMonth(),
+                end: now()->endOfMonth(),
             )
             ->perMonth()
-            ->count();
+            ->sum('quantity');
 
-        $barangLabels = BarangTransaksi::with('barang')
+        $transactions = BarangTransaksi::with('barang')
             ->whereNotNull('barang_id')
-            // ->where('quantity', '>', 5) // barang yang terjual lebih dari 5
+            ->where('quantity', '>', 0) // ubah batas 
             ->whereBetween('created_at', [
-                now()->subMonth()->startOfMonth(),
-                now()->subMonth()->endOfMonth(),
+                now()->startOfMonth(),
+                now()->endOfMonth(),
             ])
-            ->get()
-            ->map(fn($transaksi) => $transaksi->barang->nama_barang) // Ambil nama barang
-            ->unique(); // Hilangkan duplikasi nama barang
+            ->get();
 
+        $barangLabels = $transactions->pluck('barang.nama_barang')->unique()->values();
+
+        $data = $transactions->mapWithKeys(function ($transaction) {
+            return [$transaction->barang->nama_barang => $transaction->quantity];
+        });
 
         return [
             'datasets' => [
                 [
                     'label' => 'Barang Terjual',
-                    'data' => $data->map(fn(TrendValue $value) => $value->aggregate),
+                    'data' => $barangLabels->map(fn($label) => $data->get($label, 0)),
                 ],
             ],
-            'labels' => $barangLabels->values()->toArray(),
+            'labels' => $barangLabels->toArray(),
         ];
     }
 
