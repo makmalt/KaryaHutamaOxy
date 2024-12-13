@@ -22,6 +22,7 @@ use Filament\Infolists\Components\Group;
 use Filament\Infolists\Components\Split;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Forms\Components\DateTimePicker;
@@ -40,7 +41,10 @@ class TagihanResource extends Resource
     protected static ?string $model = Tagihan::class;
     protected static ?string $navigationLabel = 'Tagihan';
     protected static ?string $navigationIcon = 'heroicon-o-receipt-percent';
+    protected static ?string $navigationGroup = 'Data';
+
     protected static ?int $navigationSort = 5;
+
 
     public static function form(Form $form): Form
     {

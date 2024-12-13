@@ -3,18 +3,19 @@
 namespace App\Filament\Pages;
 
 use Filament\Pages\Page;
-use Filament\Support\Enums\MaxWidth;
-use Filament\Widgets\StatsOverviewWidget;
+use Tables\Actions\EditAction;
+use App\Models\BarangTransaksi;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Actions\Contracts\HasTable;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 
 class Laporan extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
-    protected static ?string $navigationLabel = 'Laporan';
-    protected static ?int $navigationSort = 6;
-    protected static string $view = 'filament.pages.laporan';
 
-    public function getMaxContentWidth(): MaxWidth
-    {
-        return MaxWidth::Full;
-    }
+    protected static string $view = 'filament.pages.laporan';
+    protected static ?int $navigationSort = 6;
+
+    protected static ?string $navigationGroup = 'Laporan';
 }

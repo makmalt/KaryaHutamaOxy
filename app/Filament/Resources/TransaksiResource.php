@@ -25,7 +25,6 @@ use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Exports\TransaksiExporter;
 use Filament\Forms\Components\DateTimePicker;
-use Illuminate\Validation\ValidationException;
 use Filament\Actions\Exports\Enums\ExportFormat;
 use App\Filament\Resources\TransaksiResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -37,6 +36,8 @@ class TransaksiResource extends Resource
     protected static ?string $model = Transaksi::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-arrows-right-left';
+    protected static ?string $navigationGroup = 'Data';
+
 
     public static function form(Form $form): Form
     {
@@ -251,7 +252,6 @@ class TransaksiResource extends Resource
     }
     public function create(array $data): Model
     {
-        // Validate and remove cash-related fields before saving
         $transactionData = Arr::except($data, ['cash_input', 'change_amount']);
 
         return $this->model::create($transactionData);

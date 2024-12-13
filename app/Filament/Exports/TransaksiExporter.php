@@ -21,7 +21,8 @@ class TransaksiExporter extends Exporter
             ExportColumn::make('tgl_transaksi')
                 ->label('TGL TRANSAKI'),
             ExportColumn::make('grand_total')
-                ->label('GRAND TOTAL'),
+                ->label('GRAND TOTAL')
+                ->formatStateUsing(fn($state) => 'Rp ' . number_format($state, 2, ',', '.')),
         ];
     }
 

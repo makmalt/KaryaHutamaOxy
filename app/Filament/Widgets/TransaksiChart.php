@@ -17,10 +17,10 @@ class TransaksiChart extends ChartWidget
         $query = Transaksi::where('grand_total', '>', 0.00);
         $data = Trend::query($query)
             ->between(
-                // start: now()->subWeek(), // perweek
-                // end: now(),
-                start: now()->subMonth()->startOfMonth(), // Awal bulan sebelumnya (November 2024)
-                end: now()->subMonth()->endOfMonth(),
+                start: now()->subWeek(), // perweek
+                end: now(),
+                // start: now()->subMonth()->startOfMonth(), // Awal bulan sebelumnya (November 2024)
+                // end: now()->subMonth()->endOfMonth(),
             )
             ->perDay()
             ->sum('grand_total');

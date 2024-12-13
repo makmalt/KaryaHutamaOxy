@@ -37,6 +37,8 @@ class SupplierResource extends Resource
     protected static ?string $model = Supplier::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-truck';
+    
+protected static ?string $navigationGroup = 'Data';
 
     public static function form(Form $form): Form
     {
@@ -65,12 +67,12 @@ class SupplierResource extends Resource
         return $table
             ->columns([
                 //
-                TextColumn::make('nama_supplier')
-                    ->label('Nama Supplier'),
-                TextColumn::make('alamat')
-                    ->label('Alamat'),
-                TextColumn::make('kontak')
-                    ->label('Kontak'),
+                    TextColumn::make('nama_supplier')
+                        ->label('Nama Supplier'),
+                    TextColumn::make('alamat')
+                        ->label('Alamat'),
+                    TextColumn::make('kontak')
+                        ->label('Kontak'),
             ])
             ->filters([
                 //
