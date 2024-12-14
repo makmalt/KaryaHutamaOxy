@@ -5,9 +5,11 @@ namespace App\Filament\Resources;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Barang;
+use Filament\Forms\Get;
 use Filament\Forms\Form;
 use App\Models\Transaksi;
 use Filament\Tables\Table;
+use Illuminate\Support\Arr;
 use App\Models\BarangTransaksi;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\DB;
@@ -29,7 +31,6 @@ use Filament\Actions\Exports\Enums\ExportFormat;
 use App\Filament\Resources\TransaksiResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TransaksiResource\RelationManagers;
-use Illuminate\Support\Arr;
 
 class TransaksiResource extends Resource
 {
@@ -50,16 +51,16 @@ class TransaksiResource extends Resource
                     ->default(now())
                     ->required(),
                 Repeater::make('barang_transaksis')
-                    ->label('Transaksi') // nama field di database
+                    ->label('Transaksi')
                     ->relationship('barangTransaksi')
-                    ->reactive()
+                    ->live()
                     ->schema([
                         Select::make('barang_id')
                             ->label('Barang')
                             ->options(Barang::all()->pluck('nama_barang', 'id'))
                             ->searchable()
                             ->required()
-                            ->reactive()
+                            ->live()
                             ->afterStateUpdated(function ($state, callable $set) {
                                 $hargaBarang = Barang::find($state)?->harga ?? 0;
                                 $set('harga_barang', $hargaBarang);
@@ -74,7 +75,7 @@ class TransaksiResource extends Resource
                             ->numeric()
                             ->default(0)
                             ->required()
-                            ->reactive()
+                            ->live()
                             ->minValue(0)
                             ->afterStateUpdated(function ($state, callable $get, callable $set) {
                                 //logic for stok
@@ -94,9 +95,6 @@ class TransaksiResource extends Resource
                                     $totalHarga = $hargaBarang * $state;
                                     $set('total_harga', number_format($totalHarga, 2, '.', ''));
                                 }
-                                $repeaterState = $get('barang_transaksis') ?? [];
-                                $grandTotal = collect($repeaterState)->sum(fn($item) => $item['total_harga'] ?? 0);
-                                $set('grand_total', number_format($grandTotal, 2, '.', ''));
                             }),
                         TextInput::make('total_harga')
                             ->label('Total Harga')
@@ -106,20 +104,24 @@ class TransaksiResource extends Resource
                     ])
                     ->columnSpan('full') // Agar form-nya lebar
                     ->minItems(1) // Minimal 1 barang
-                    ->addActionLabel('Tambah Barang')
-                    ->afterStateUpdated(function (array $state, callable $set) {
-                        // Hitung grand_total
-                        $grandTotal = collect($state)->sum(fn($item) => $item['total_harga'] ?? 0);
-                        $set('grand_total', number_format($grandTotal, 2, '.', ''));
-                    }),
+                    ->addActionLabel('Tambah Barang'),
 
                 // Total transaksi (menghitung total semua barang)
                 TextInput::make('grand_total')
                     ->label('Grand Total')
                     ->numeric()
                     ->readOnly()
-                    ->reactive()
-                    ->default(0)
+                    ->live()
+                    ->default(0.00)
+                    ->placeholder(function (Get $get, callable $set) {
+                        $fields = $get('barang_transaksis');
+                        $sum = 0;
+                        foreach ($fields as $field) {
+                            $sum += $field['total_harga'];
+                        }
+                        $set('grand_total', number_format($sum, 2, '.', ''));
+                        return $sum;
+                    })
                     ->prefix('Rp. '),
 
                 Section::make('Pembayaran')
@@ -129,7 +131,7 @@ class TransaksiResource extends Resource
                             ->numeric()
                             ->prefix('Rp. ')
                             ->required()
-                            ->reactive()
+                            ->live()
                             ->afterStateUpdated(function ($state, callable $get, callable $set) {
                                 $grandTotal = floatval(str_replace(['Rp. ', ','], '', $get('grand_total')));
                                 $cash = floatval($state);
