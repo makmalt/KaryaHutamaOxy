@@ -16,4 +16,8 @@ class Transaksi extends Model
     {
         return $this->hasMany(BarangTransaksi::class, 'transaksi_id');
     }
+
+    protected $casts = [
+        'tgl_transaksi' => 'datetime',
+    ];
 }

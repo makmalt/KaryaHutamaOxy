@@ -22,6 +22,7 @@ use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\Layout\Grid;
 use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Columns\Layout\Split;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\TextEntry;
@@ -121,15 +122,7 @@ class BarangResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\Action::make('delete')
-                    ->action(fn(Barang $record) => $record->delete())
-                    ->requiresConfirmation()
-                    ->modalHeading('Hapus Barang')
-                    ->modalDescription('Anda yakin menghapus barang ini?')
-                    ->color('danger')
-                    ->icon('heroicon-o-trash')
-                    ->modalSubmitActionLabel('Ya, Hapus Barang')
-                    ->modalCancelActionLabel('Batal'),
+                Tables\Actions\DeleteAction::make(),
                 Tables\Actions\Action::make('Add')
                     ->icon('heroicon-o-plus')
                     ->form([

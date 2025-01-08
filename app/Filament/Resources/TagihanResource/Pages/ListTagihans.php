@@ -20,7 +20,7 @@ class ListTagihans extends ListRecords
     public function getTabs(): array
     {
         return [
-            null => Tab::make('All'),
+            null => Tab::make('Semua'),
             'Belum lunas' => Tab::make()->query(fn($query) => $query->where('status_lunas', 0)),
             'Lunas' => Tab::make()->query(fn($query) => $query->where('status_lunas', 1)),
         ];

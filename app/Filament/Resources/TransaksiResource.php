@@ -213,6 +213,21 @@ class TransaksiResource extends Resource
                     ->icon('heroicon-o-trash')
                     ->modalSubmitActionLabel('Ya, Hapus Transaksi')
                     ->modalCancelActionLabel('Batal'),
+                Tables\Actions\Action::make('print_invoice')
+                    ->label('Cetak Invoice')
+                    ->icon('heroicon-o-printer')
+                    ->color('success')
+                    ->action(function (Model $record) {
+                        // Generate PDF
+                        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('invoice', ['transaksi' => $record]);
+
+                        // Return PDF as response
+                        return response()->streamDownload(
+                            fn() => print($pdf->stream()),
+                            "invoice-{$record->no_transaksi}.pdf"
+                        );
+                    })
+                    ->tooltip('Cetak Invoice'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

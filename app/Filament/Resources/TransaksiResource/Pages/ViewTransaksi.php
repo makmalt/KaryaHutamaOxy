@@ -9,8 +9,9 @@ use Filament\Resources\Pages\ViewRecord;
 class ViewTransaksi extends ViewRecord
 {
     protected static string $resource = TransaksiResource::class;
+    protected ?string $heading = 'Detail Transaksi';
 
-    protected function getHeaderActions(): array
+    protected function getHeaderActions(): array    
     {
         return [
             Actions\EditAction::make(),
