@@ -56,7 +56,14 @@ class BarangResource extends Resource
                             ->required()
                             ->autocapitalize('words'),
                         TextInput::make('deskripsi')->nullable(),
+                        TextInput::make('hargaBeli')
+                            ->label('Harga Beli')
+                            ->prefix('Rp. ')
+                            ->required()
+                            ->numeric(),
                         TextInput::make('harga')
+                            ->label('Harga Jual')
+                            ->prefix('Rp. ')
                             ->required()
                             ->numeric(),
                         TextInput::make('stok_tersedia')
@@ -170,7 +177,12 @@ class BarangResource extends Resource
                                         TextEntry::make('supplier.nama_supplier'),
                                     ]),
                                     ComponentsGroup::make([
+                                        TextEntry::make('hargaBeli')
+                                            ->label('Harga Beli')
+                                            ->prefix('Rp. ')
+                                            ->formatStateUsing(fn($state) => number_format($state, 2, ',', '.')),
                                         TextEntry::make('harga')
+                                            ->label('Harga Jual')
                                             ->prefix('Rp. ')
                                             ->formatStateUsing(fn($state) => number_format($state, 2, ',', '.')),
                                         TextEntry::make('stok_tersedia'),

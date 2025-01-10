@@ -10,7 +10,7 @@ class Barang extends Model
 {
     use HasFactory;
     protected $table = 'barangs';
-    protected $fillable = ['nama_barang', 'deskripsi', 'image', 'barcode', 'harga', 'stok_tersedia', 'supplier_id', 'sku_id'];
+    protected $fillable = ['nama_barang', 'deskripsi', 'image', 'barcode', 'harga', 'stok_tersedia', 'supplier_id', 'sku_id', 'hargaBeli'];
     protected static function boot()
     {
         parent::boot();
