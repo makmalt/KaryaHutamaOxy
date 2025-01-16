@@ -10,9 +10,4 @@ class Supplier extends Model
     use HasFactory;
     protected $table = 'suppliers';
     protected $fillable = ['nama_supplier', 'alamat', 'kontak'];
-
-    public function barang()
-    {
-        return $this->hasMany(Barang::class, 'supplier_id');
-    }
 }

@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\BarangResource\Pages;
 
-use App\Filament\Resources\BarangResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
+use App\Filament\Resources\BarangResource;
+use App\Filament\Widgets\TambahStokWidget;
 
 class ViewBarang extends ViewRecord
 {

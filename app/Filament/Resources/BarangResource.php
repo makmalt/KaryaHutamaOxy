@@ -5,8 +5,11 @@ namespace App\Filament\Resources;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Barang;
+use Filament\Forms\Get;
+use App\Models\Kategori;
 use App\Models\Supplier;
 use Filament\Forms\Form;
+use App\Models\TambahStok;
 use Filament\Tables\Table;
 use Filament\Facades\Filament;
 use Filament\Infolists\Infolist;
@@ -15,12 +18,14 @@ use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Support\Enums\FontWeight;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\Component;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\Layout\Grid;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Columns\Layout\Split;
@@ -28,6 +33,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Infolists\Components\ImageEntry;
+use RelationManagers\TambahStokRelationManager;
 use App\Filament\Resources\BarangResource\Pages;
 use AnourValar\EloquentSerialize\Tests\Models\Post;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -59,7 +65,6 @@ class BarangResource extends Resource
                         TextInput::make('hargaBeli')
                             ->label('Harga Beli')
                             ->prefix('Rp. ')
-                            ->required()
                             ->numeric(),
                         TextInput::make('harga')
                             ->label('Harga Jual')
@@ -69,26 +74,21 @@ class BarangResource extends Resource
                         TextInput::make('stok_tersedia')
                             ->label('Stok Awal')
                             ->required()
+                            ->reactive()
                             ->numeric(),
-                        Select::make('supplier_id')
-                            ->label('Supplier')
+                        Select::make('kategori_id')
+                            ->label('Kategori')
                             ->options(
-                                Supplier::all()->pluck('nama_supplier', 'id')
+                                Kategori::all()->pluck('nama_kategori', 'id')
                             )
                             ->required()
-                            ->reactive()
-                            ->afterStateUpdated(function ($state, callable $set, $get) {
-                                $namaBarang = $get('nama_barang');
-                                $supplierNama = Supplier::find($state)->nama_supplier; // Ambil nama supplier
-                                $set('sku_id', strtoupper(substr($supplierNama, 0, 3)) . '-' . str_replace(' ', '', $namaBarang));
-                            }),
+                            ->searchable()
+                            ->reactive(),
                         TextInput::make('sku_id')
                             ->label('SKU')
-                            ->required()
                             ->unique(table: Barang::class, column: 'sku_id', ignoreRecord: true)
-                            ->readOnly()
                             ->reactive()
-                            ->helperText('Format: 3 huruf awal supplier diikuti tanda "-" nama barang'),
+                            ->helperText('Format: Brand ditulis, diikuti tanda "-" nama barang'),
                         TextInput::make('barcode'),
                         FileUpload::make('image')
                             ->label('Gambar(Optional)')
@@ -115,9 +115,6 @@ class BarangResource extends Resource
                     ->formatStateUsing(fn($state) => number_format($state, 2, ',', '.')),
                 TextColumn::make('stok_tersedia')
                     ->label('Stok'),
-                TextColumn::make('supplier.nama_supplier')
-                    ->searchable()
-                    ->label('Supplier'),
                 ImageColumn::make('image')
                     ->label('Gambar')
                     ->circular(),
@@ -133,16 +130,61 @@ class BarangResource extends Resource
                 Tables\Actions\Action::make('Add')
                     ->icon('heroicon-o-plus')
                     ->form([
-                        TextInput::make('stok_tambahan')
-                            ->label('Jumlah Stok Tambahan')
+                        Select::make('supplier_id')
+                            ->label('Supplier')
+                            ->options(Supplier::all()->pluck('nama_supplier', 'id')) // Ambil daftar supplier
+                            ->required()
+                            ->searchable()
+                            ->placeholder('Pilih supplier'),
+
+                        TextInput::make('harga_satuan')
+                            ->label('Harga Satuan')
                             ->required()
                             ->numeric()
-                            ->minValue(1),
+                            ->live()
+                            ->minValue(0)
+                            ->placeholder('Masukkan harga satuan (per unit)')
+                            ->prefix('Rp. '),
+
+                        TextInput::make('stok_tambahan')
+                            ->label('Stok Tambahan')
+                            ->required()
+                            ->numeric()
+                            ->live()
+                            ->minValue(1)
+                            ->afterStateUpdated(function ($state, callable $set, Get $get) {
+                                $harga_satuan = $get('harga_satuan');
+                                $totalHarga = $harga_satuan * $state;
+                                $set('total_harga', $totalHarga);
+                            })
+                            ->placeholder('Masukkan jumlah stok tambahan'),
+
+                        TextInput::make('total_harga')
+                            ->label('Total Harga')
+                            ->numeric()
+                            ->readOnly()
+                            ->prefix('Rp. '),
+
+                        DatePicker::make('tgl_masuk')
+                            ->displayFormat('d/m/Y')
+                            ->default(now()),
+                        Textarea::make('keterangan')
                     ])
                     ->action(function (array $data, Barang $record) {
                         // Tambahkan stok_tambahan ke stok_tersedia
-                        $record->stok_tersedia += $data['stok_tambahan'];
-                        $record->save();
+                        // $record->stok_tersedia += $data['stok_tambahan'];
+                        // $record->save();
+
+                        // Simpan ke dalam riwayat stok (jika tabel riwayat stok ada)
+                        TambahStok::create([
+                            'barang_id' => $record->id,
+                            'supplier_id' => $data['supplier_id'],
+                            'kuantitas' => $data['stok_tambahan'],
+                            'harga_satuan' => $data['harga_satuan'],
+                            'total_harga' => $data['stok_tambahan'] * $data['harga_satuan'], // Menghitung total harga
+                            'tgl_masuk' => $data['tgl_masuk'],
+                            'keterangan' => $data['keterangan'],
+                        ]);
                     })
                     ->modalHeading('Tambah Stok')
                     ->modalSubmitActionLabel('Simpan')
@@ -159,6 +201,7 @@ class BarangResource extends Resource
     {
         return [
             //
+            RelationManagers\TambahStokRelationManager::class,
         ];
     }
     public static function infolist(Infolist $infolist): Infolist
@@ -174,7 +217,7 @@ class BarangResource extends Resource
                                         TextEntry::make('nama_barang'),
                                         TextEntry::make('sku_id'),
                                         TextEntry::make('deskripsi'),
-                                        TextEntry::make('supplier.nama_supplier'),
+                                        TextEntry::make('barcode'),
                                     ]),
                                     ComponentsGroup::make([
                                         TextEntry::make('hargaBeli')
@@ -186,7 +229,9 @@ class BarangResource extends Resource
                                             ->prefix('Rp. ')
                                             ->formatStateUsing(fn($state) => number_format($state, 2, ',', '.')),
                                         TextEntry::make('stok_tersedia'),
-                                        TextEntry::make('barcode'),
+                                        TextEntry::make('kategori_id')
+                                            ->label('Kategori')
+                                            ->formatStateUsing(fn($state) => Kategori::find($state)->nama_kategori)
                                     ])
                                 ]),
                             ImageEntry::make('image')
@@ -206,6 +251,7 @@ class BarangResource extends Resource
             'edit' => Pages\EditBarang::route('/{record}/edit'),
         ];
     }
+
     public static function getNavigationLabel(): string
     {
         return "Barang";
