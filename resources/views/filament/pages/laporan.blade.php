@@ -3,4 +3,5 @@
     @livewire('list-barang-transaksi')
     <h2><strong>Stok Menipis</strong></h2>
     @livewire('barang-habis')
+    @livewire('chart')
 </x-filament-panels::page>

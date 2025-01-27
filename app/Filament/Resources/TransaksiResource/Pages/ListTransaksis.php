@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\TransaksiResource\Pages;
 
-use App\Filament\Resources\TransaksiResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\TransaksiResource;
+use App\Filament\Widgets\BarangTransaksiChart;
 
 class ListTransaksis extends ListRecords
 {

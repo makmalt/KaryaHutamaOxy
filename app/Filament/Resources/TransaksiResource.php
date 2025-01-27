@@ -29,8 +29,7 @@ use App\Filament\Exports\TransaksiExporter;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Actions\Exports\Enums\ExportFormat;
 use App\Filament\Resources\TransaksiResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\TransaksiResource\RelationManagers;
+use App\Filament\Widgets\BarangTransaksiChart;
 
 class TransaksiResource extends Resource
 {
