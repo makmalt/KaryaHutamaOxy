@@ -17,9 +17,9 @@ class TransaksiExporter extends Exporter
     {
         return [
             ExportColumn::make('no_transaksi')
-                ->label('NO TRANSAKI'),
+                ->label('NO TRANSAKSI'),
             ExportColumn::make('tgl_transaksi')
-                ->label('TGL TRANSAKI'),
+                ->label('TGL TRANSAKSI'),
             ExportColumn::make('grand_total')
                 ->label('GRAND TOTAL')
                 ->formatStateUsing(fn($state) => 'Rp ' . number_format($state, 2, ',', '.')),

@@ -42,6 +42,7 @@ use App\Filament\Resources\BarangResource\RelationManagers;
 use Filament\Infolists\Components\Group as ComponentsGroup;
 use Filament\Infolists\Components\Split as ComponentsSplit;
 use Filament\Infolists\Components\Section as ComponentsSection;
+use Filament\Notifications\Notification;
 
 class BarangResource extends Resource
 {
@@ -103,25 +104,52 @@ class BarangResource extends Resource
         return $table
             ->columns([
                 //
-                TextColumn::make('sku_id')
-                    ->searchable()
-                    ->label('SKU ID'),
-                TextColumn::make('nama_barang')
-                    ->searchable()
-                    ->label('Nama Barang'),
-                TextColumn::make('harga')
-                    ->label('Harga')
-                    ->prefix('Rp. ')
-                    ->formatStateUsing(fn($state) => number_format($state, 2, ',', '.')),
-                TextColumn::make('stok_tersedia')
-                    ->label('Stok'),
-                ImageColumn::make('image')
-                    ->label('Gambar')
-                    ->circular(),
+                // TextColumn::make('sku_id')
+                //     ->searchable()
+                //     ->label('SKU ID'),
+                // TextColumn::make('nama_barang')
+                //     ->searchable()
+                //     ->label('Nama Barang'),
+                // TextColumn::make('harga')
+                //     ->label('Harga')
+                //     ->prefix('Rp. ')
+                //     ->formatStateUsing(fn($state) => number_format($state, 2, ',', '.')),
+                // TextColumn::make('stok_tersedia')
+                //     ->label('Stok'),
+                // ImageColumn::make('image')
+                //     ->label('Gambar')
+                //     ->circular(),
+                Tables\Columns\Layout\Stack::make([
+                    Tables\Columns\ImageColumn::make('image')
+                        ->height('100%')
+                        ->width('100%'),
+                    Tables\Columns\Layout\Stack::make([
+                        Tables\Columns\TextColumn::make('sku_id')
+                            ->searchable(),
+                        Tables\Columns\TextColumn::make('nama_barang')
+                            ->weight(FontWeight::Bold)
+                            ->searchable(),
+                        Tables\Columns\TextColumn::make('harga')
+                            ->prefix('Rp. ')
+                            ->formatStateUsing(fn($state) => number_format($state, 2, ',', '.'))
+                            ->color('gray')
+                            ->limit(30),
+                    ]),
+                ])
             ])
             ->defaultSort('stok_tersedia', 'ascending')
             ->filters([
                 //
+            ])
+            ->contentGrid([
+                'md' => 2,
+                'xl' => 3,
+            ])
+            ->paginated([
+                18,
+                36,
+                72,
+                'all',
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -168,7 +196,7 @@ class BarangResource extends Resource
                         DatePicker::make('tgl_masuk')
                             ->displayFormat('d/m/Y')
                             ->default(now()),
-                        Textarea::make('keterangan')
+                        Textarea::make('keterangan'),
                     ])
                     ->action(function (array $data, Barang $record) {
                         // Tambahkan stok_tambahan ke stok_tersedia
@@ -185,6 +213,12 @@ class BarangResource extends Resource
                             'tgl_masuk' => $data['tgl_masuk'],
                             'keterangan' => $data['keterangan'],
                         ]);
+
+                        Notification::make()
+                            ->title('Stok berhasil ditambahkan!')
+                            ->body("Stok tambahan sebanyak {$data['stok_tambahan']} unit berhasil ditambahkan.")
+                            ->success() // Notifikasi tipe sukses
+                            ->send();
                     })
                     ->modalHeading('Tambah Stok')
                     ->modalSubmitActionLabel('Simpan')
