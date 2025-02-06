@@ -29,7 +29,6 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Infolists\Components\ImageEntry;
 use NunoMaduro\Collision\Adapters\Phpunit\State;
 use App\Filament\Resources\TagihanResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Infolists\Components\Grid as ComponentsGrid;
 use Filament\Infolists\Components\Group as ComponentsGroup;
 use Filament\Infolists\Components\Split as ComponentsSplit;

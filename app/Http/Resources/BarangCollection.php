@@ -26,6 +26,7 @@ class BarangCollection extends ResourceCollection
                     'stok_tersedia' => $barang->stok_tersedia,
                     'supplier_id' => $barang->supplier_id,
                     'sku_id' => $barang->sku_id,
+                    'kategori_id' => $barang->kategori_id
                 ];
             }),
             'meta' => [

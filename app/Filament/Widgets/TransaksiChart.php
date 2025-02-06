@@ -9,7 +9,7 @@ use Filament\Widgets\ChartWidget;
 
 class TransaksiChart extends ChartWidget
 {
-    protected static ?string $heading = 'Pembelian ';
+    protected static ?string $heading = 'Pembelian Bulan ini';
     protected static ?int $sort = 2;
 
     protected function getData(): array

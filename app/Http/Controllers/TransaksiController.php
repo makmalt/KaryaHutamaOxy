@@ -46,13 +46,6 @@ class TransaksiController extends Controller
                     'quantity' => $barangTransaksiData['quantity'],
                     'total_harga' => $barangTransaksiData['total_harga'],
                 ]);
-
-                // Update stok barang
-                // $barang = Barang::find($barangTransaksiData['barang_id']);
-                // if ($barang) {
-                //     $barang->stok_tersedia -= $barangTransaksiData['quantity'];
-                //     $barang->save();
-                // }
             }
 
             // Commit transaksi database

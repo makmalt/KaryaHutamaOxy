@@ -103,28 +103,16 @@ class BarangResource extends Resource
     {
         return $table
             ->columns([
-                //
-                // TextColumn::make('sku_id')
-                //     ->searchable()
-                //     ->label('SKU ID'),
-                // TextColumn::make('nama_barang')
-                //     ->searchable()
-                //     ->label('Nama Barang'),
-                // TextColumn::make('harga')
-                //     ->label('Harga')
-                //     ->prefix('Rp. ')
-                //     ->formatStateUsing(fn($state) => number_format($state, 2, ',', '.')),
-                // TextColumn::make('stok_tersedia')
-                //     ->label('Stok'),
-                // ImageColumn::make('image')
-                //     ->label('Gambar')
-                //     ->circular(),
+                Tables\Columns\Layout\Stack::make([]),
                 Tables\Columns\Layout\Stack::make([
                     Tables\Columns\ImageColumn::make('image')
-                        ->height('100%')
-                        ->width('100%'),
+                        ->defaultImageUrl('https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/1200px-Cat03.jpg')
+                        ->height('200px') // Atur tinggi gambar
+                        ->width('100%')
+                        ->extraAttributes(['style' => 'object-fit: cover;']),
                     Tables\Columns\Layout\Stack::make([
                         Tables\Columns\TextColumn::make('sku_id')
+                            ->default('Belum ada skuid')
                             ->searchable(),
                         Tables\Columns\TextColumn::make('nama_barang')
                             ->weight(FontWeight::Bold)
@@ -134,7 +122,9 @@ class BarangResource extends Resource
                             ->formatStateUsing(fn($state) => number_format($state, 2, ',', '.'))
                             ->color('gray')
                             ->limit(30),
-                    ]),
+                    ])
+                        ->space(1)
+                        ->alignStart(),
                 ])
             ])
             ->defaultSort('stok_tersedia', 'ascending')
