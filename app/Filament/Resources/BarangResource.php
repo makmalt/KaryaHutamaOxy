@@ -189,10 +189,6 @@ class BarangResource extends Resource
                         Textarea::make('keterangan'),
                     ])
                     ->action(function (array $data, Barang $record) {
-                        // Tambahkan stok_tambahan ke stok_tersedia
-                        // $record->stok_tersedia += $data['stok_tambahan'];
-                        // $record->save();
-
                         // Simpan ke dalam riwayat stok (jika tabel riwayat stok ada)
                         TambahStok::create([
                             'barang_id' => $record->id,

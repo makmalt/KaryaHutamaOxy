@@ -18,4 +18,8 @@ class Laporan extends Page
     protected static ?int $navigationSort = 6;
 
     protected static ?string $navigationGroup = 'Lainnya';
+    public static function getNavigationLabel(): string
+    {
+        return "Informasi";
+    }
 }

@@ -29,7 +29,7 @@ class KategoriResource extends Resource
         return $form
             ->schema([
                 //
-                Section::make('Tambah Kategori')
+                Section::make()
                     ->description('')
                     ->schema([
                         TextInput::make('nama_kategori')

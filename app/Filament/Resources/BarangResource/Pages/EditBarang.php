@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources\BarangResource\Pages;
 
-use App\Filament\Resources\BarangResource;
 use Filament\Actions;
-use Filament\Resources\Pages\EditRecord;
 use Livewire\Attributes\On;
+use Filament\Notifications\Notification;
+use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\BarangResource;
 
 class EditBarang extends EditRecord
 {
@@ -22,5 +23,17 @@ class EditBarang extends EditRecord
             Actions\ViewAction::make(),
             Actions\DeleteAction::make(),
         ];
+    }
+
+    public function deleteRecord(): void
+    {
+        $this->record->delete(); // Hapus barang dari database
+
+        Notification::make()
+            ->title('Barang berhasil dihapus')
+            ->success()
+            ->send();
+
+        $this->redirect($this->getResource()::getUrl('index'));
     }
 }
