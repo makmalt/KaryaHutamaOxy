@@ -33,6 +33,7 @@ use Filament\Infolists\Components\Grid as ComponentsGrid;
 use Filament\Infolists\Components\Group as ComponentsGroup;
 use Filament\Infolists\Components\Split as ComponentsSplit;
 use App\Filament\Resources\TagihanResource\RelationManagers;
+use App\Models\Supplier;
 use Filament\Infolists\Components\Section as ComponentsSection;
 
 class TagihanResource extends Resource
@@ -59,8 +60,17 @@ class TagihanResource extends Resource
                             ->maxLength(255),
                         TextInput::make('nominal_tagihan')
                             ->label('Nominal')
+                            ->prefix('Rp. ')
                             ->required()
                             ->numeric(),
+                        Select::make('supplier_id')
+                            ->label('Supplier')
+                            ->options(
+                                Supplier::all()->pluck('nama_supplier', 'id')
+                            )
+                            ->required()
+                            ->searchable()
+                            ->reactive(),
                         DatePicker::make('jatuhTempo_tagihan')
                             ->label('Jatuh Tempo')
                             ->required()
@@ -93,6 +103,9 @@ class TagihanResource extends Resource
                 TextColumn::make('jatuhTempo_tagihan')
                     ->date('d M Y')
                     ->label('Jatuh Tempo'),
+                TextColumn::make('supplier.nama_supplier')
+                    ->searchable()
+                    ->label('Supplier'),
                 TextColumn::make('status_lunas')
                     ->label('Status')
                     ->badge()

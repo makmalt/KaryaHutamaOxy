@@ -14,8 +14,14 @@ class Tagihan extends Model
         'tagihan',
         'nominal_tagihan',
         'jatuhTempo_tagihan',
+        'supplier_id',
         'status_lunas',
         'keterangan',
         'img_nota'
     ];
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
 }

@@ -32,9 +32,9 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->favicon(asset('favicon-16x16.png'))
+            ->favicon(asset('logo4.png'))
             ->brandName('Karya Hutama Oxy')
-            ->brandLogo(asset('logo2.png'))
+            ->brandLogo(asset('logo4fix.png'))
             ->databaseNotifications()
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

@@ -186,7 +186,11 @@ class BarangResource extends Resource
                         DatePicker::make('tgl_masuk')
                             ->displayFormat('d/m/Y')
                             ->default(now()),
-                        Textarea::make('keterangan'),
+                        Textarea::make('keterangan')
+                            ->required()
+                            ->validationMessages([
+                                'required' => 'Kolom keterangan harus diisi',
+                            ]),
                     ])
                     ->action(function (array $data, Barang $record) {
                         // Simpan ke dalam riwayat stok (jika tabel riwayat stok ada)

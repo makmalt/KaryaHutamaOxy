@@ -24,13 +24,11 @@ class BarangCollection extends ResourceCollection
                     'barcode' => $barang->barcode,
                     'harga' => $barang->harga,
                     'stok_tersedia' => $barang->stok_tersedia,
-                    'supplier_id' => $barang->supplier_id,
                     'sku_id' => $barang->sku_id,
                     'kategori_id' => $barang->kategori_id
                 ];
             }),
             'meta' => [
-                'total' => $this->collection->count(), // Jumlah item dalam koleksi ini
                 'api_version' => '1.0', // Contoh metadata tambahan
             ],
         ];

@@ -1,13 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
-    <title>Invoice</title>
+    <title>Struk Belanja</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: "Courier New", monospace;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 10px;
+            font-size: 12px;
+            box-sizing: border-box;
         }
 
         .header,
@@ -15,58 +20,94 @@
             text-align: center;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+        .header h2 {
+            margin: 0;
+            font-size: 16px;
         }
 
-        table,
-        th,
-        td {
-            border: 1px solid black;
+        .divider {
+            border-top: 1px dashed #000;
+            margin: 8px 0;
         }
 
-        th,
-        td {
-            padding: 10px;
-            text-align: left;
+        .item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .item-name {
+            flex: 1;
+        }
+
+        .item-right {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .total {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .footer {
+            margin-top: 10px;
+            font-size: 11px;
+        }
+
+        .no-print {
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                width: 100%;
+                margin: 0;
+            }
         }
     </style>
 </head>
 
 <body>
     <div class="header">
-        <h1>Invoice</h1>
-        <p>No Transaksi: {{ $transaksi->no_transaksi }}</p>
-        <p>Tanggal: {{ $transaksi->tgl_transaksi->format('d M Y') }}</p>
+        <h2>Karya Hutama Oxygen</h2>
+        <p>Jl. Diponegoro No.122<br>Mojosari, Mojokerto<br>(0321)593940</p>
+        <p>No: {{ $transaksi->no_transaksi }}<br>
+            Tgl: {{ $transaksi->tgl_transaksi->format('d/m/Y H:i') }}
+        </p>
     </div>
-    <table>
-        <thead>
-            <tr>
-                <th>Nama Barang</th>
-                <th>Harga</th>
-                <th>Kuantitas</th>
-                <th>Total Harga</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($transaksi->barangTransaksi as $item)
-            <tr>
-                <td>{{ $item->barang->nama_barang }}</td>
-                <td>Rp. {{ number_format($item->harga_barang, 2, ',', '.') }}</td>
-                <td>{{ $item->quantity }}</td>
-                <td>Rp. {{ number_format($item->total_harga, 2, ',', '.') }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="3"><strong>Grand Total</strong></td>
-                <td><strong>Rp. {{ number_format($transaksi->grand_total, 2, ',', '.') }}</strong></td>
-            </tr>
-        </tfoot>
-    </table>
+
+    <div class="divider"></div>
+
+    @foreach ($transaksi->barangTransaksi as $item)
+    <div class="item">
+        <div class="item-name">
+            {{ $item->barang->nama_barang }}<br>
+            {{ $item->quantity }} x Rp{{ number_format($item->harga_barang, 0, ',', '.') }}
+        </div>
+        <div class="item-right">
+            Rp{{ number_format($item->total_harga, 0, ',', '.') }}
+        </div>
+    </div>
+    @endforeach
+
+    <div class="divider"></div>
+
+    <div class="item total">
+        <div class="item-name">TOTAL</div>
+        <div class="item-right">Rp{{ number_format($transaksi->grand_total, 0, ',', '.') }}</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="footer">
+        <p>Terima kasih telah berbelanja</p>
+    </div>
 </body>
 
 </html>
