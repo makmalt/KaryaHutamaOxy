@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Columns\TextColumn;
@@ -26,10 +27,11 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Actions\ExportAction;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Exports\TransaksiExporter;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
+use App\Filament\Widgets\BarangTransaksiChart;
 use Filament\Actions\Exports\Enums\ExportFormat;
 use App\Filament\Resources\TransaksiResource\Pages;
-use App\Filament\Widgets\BarangTransaksiChart;
 
 class TransaksiResource extends Resource
 {
@@ -125,29 +127,54 @@ class TransaksiResource extends Resource
 
                 Section::make('Pembayaran')
                     ->schema([
-                        TextInput::make('cash_input')
+                        TextInput::make('uang_pembayaran')
                             ->label('Uang Diterima')
                             ->numeric()
                             ->prefix('Rp. ')
                             ->required()
-                            ->live()
-                            ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                                $grandTotal = floatval(str_replace(['Rp. ', ','], '', $get('grand_total')));
-                                $cash = floatval($state);
+                            ->live(),
+                        // ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                        //     $grandTotal = floatval(str_replace(['Rp. ', ','], '', $get('grand_total')));
+                        //     $cash = floatval($state);
 
-                                if ($cash < $grandTotal) {
-                                    Notification::make()
-                                        ->title('Error')
-                                        ->body('Uang yang diterima kurang dari total transaksi.')
-                                        ->danger()
-                                        ->send();
-                                } else {
-                                    $change = $cash - $grandTotal;
-                                    $set('change_amount', number_format($change, 2, '.', ''));
-                                }
-                            }),
+                        //     if ($cash < $grandTotal) {
+                        //         Notification::make()
+                        //             ->title('Error')
+                        //             ->body('Uang yang diterima kurang dari total transaksi.')
+                        //             ->danger()
+                        //             ->send();
+                        //     } else {
+                        //         $change = $cash - $grandTotal;
+                        //         $set('uang_kembalian', number_format($change, 2, '.', ''));
+                        //     }
+                        // }),
+                        Actions::make([
+                            Action::make('cek_pembayaran')
+                                ->label('Cek Pembayaran')
+                                ->button()
+                                ->color('success')
+                                ->action(function ($state, callable $set) {
+                                    $grandTotal = floatval(str_replace(['Rp. ', ','], '', $state['grand_total']));
+                                    $cash = floatval($state['uang_pembayaran']);
 
-                        TextInput::make('change_amount')
+                                    if ($cash < $grandTotal) {
+                                        Notification::make()
+                                            ->title('Error')
+                                            ->body('Uang yang diterima kurang dari total transaksi.')
+                                            ->danger()
+                                            ->send();
+                                    } else {
+                                        $change = $cash - $grandTotal;
+                                        $set('uang_kembalian', number_format($change, 2, '.', ''));
+                                        Notification::make()
+                                            ->title('Sukses')
+                                            ->body('Pembayaran cukup, kembalian dihitung.')
+                                            ->success()
+                                            ->send();
+                                    }
+                                })
+                        ]),
+                        TextInput::make('uang_kembalian')
                             ->label('Kembalian')
                             ->numeric()
                             ->prefix('Rp. ')
@@ -212,21 +239,12 @@ class TransaksiResource extends Resource
                     ->icon('heroicon-o-trash')
                     ->modalSubmitActionLabel('Ya, Hapus Transaksi')
                     ->modalCancelActionLabel('Batal'),
-                Tables\Actions\Action::make('print_invoice')
-                    ->label('Cetak Invoice')
-                    ->icon('heroicon-o-printer')
+                Tables\Actions\Action::make('cetak_resi')
+                    ->label('Cetak Resi')
+                    ->icon('heroicon-m-printer')
                     ->color('success')
-                    ->action(function (Model $record) {
-                        // Generate PDF
-                        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('invoice', ['transaksi' => $record]);
-
-                        // Return PDF as response
-                        return response()->streamDownload(
-                            fn() => print($pdf->stream()),
-                            "invoice-{$record->no_transaksi}.pdf"
-                        );
-                    })
-                    ->tooltip('Cetak Invoice'),
+                    ->url(fn(Transaksi $record) => route('struk', $record))
+                    ->openUrlInNewTab(), // Buka tab baru biar ga ganggu halaman kasir
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

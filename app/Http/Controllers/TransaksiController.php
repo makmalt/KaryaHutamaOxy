@@ -20,8 +20,8 @@ class TransaksiController extends Controller
             'barang_transaksis.*.quantity' => 'required|integer',
             'barang_transaksis.*.total_harga' => 'required|numeric|min:0',
             'grand_total' => 'required|numeric|min:0',
-            'cash_input' => 'numeric|min:0',
-            'change_amount' => 'numeric|min:0',
+            'uang_pembayaran' => 'numeric|min:0',
+            'uang_kembalian' => 'numeric|min:0',
         ]);
 
         DB::beginTransaction();
@@ -34,6 +34,8 @@ class TransaksiController extends Controller
                 'no_transaksi' => $no_transaksi,
                 // 'no_transaksi' => $request->input('no_transaksi'),
                 'tgl_transaksi' => now(),
+                'uang_pembayaran' => $request->input('uang_pembayaran'),
+                'uang_kembalian' => $request->input('uang_kembalian'),
                 'grand_total' => $request->input('grand_total'),
             ]);
 
@@ -67,5 +69,10 @@ class TransaksiController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function struk(Transaksi $transaksi)
+    {
+        return view('struk', compact('transaksi'));
     }
 }

@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Models\Transaksi;
+use Illuminate\Support\Facades\Route;
 use Barryvdh\DomPDF\Facade\Pdf as DomPDF;
+use App\Http\Controllers\TransaksiController;
 
 Route::get('/', function () {
     return redirect('/admin');
@@ -17,3 +18,5 @@ Route::get('/invoice/{id}/print', function ($id) {
         ['Content-Type' => 'application/pdf']
     );
 })->name('invoice.print');
+
+Route::get('/transaksi/{transaksi}/struk', [TransaksiController::class, 'struk'])->name('struk');

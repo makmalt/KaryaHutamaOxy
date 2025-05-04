@@ -104,6 +104,16 @@
     </div>
 
     <div class="divider"></div>
+    <!-- Tambahan kecil untuk Bayar/Kembalian -->
+    <div style="display: grid; grid-template-columns: auto 1fr; margin-top: 4px;">
+        <div style="text-align: left;">Bayar:</div>
+        <div style="text-align: right;">Rp{{ number_format($transaksi->uang_pembayaran, 0, ',', '.') }}</div>
+        <div style="text-align: left;">Kembalian:</div>
+        <div style="text-align: right;">Rp{{ number_format($transaksi->uang_kembalian, 0, ',', '.') }}</div>
+    </div>
+
+
+    <div class="divider"></div>
 
     <div class="footer">
         <p>Terima kasih telah berbelanja</p>
