@@ -92,8 +92,11 @@ class BarangResource extends Resource
                             ->helperText('Format: Brand ditulis, diikuti tanda "-" nama barang'),
                         TextInput::make('barcode'),
                         FileUpload::make('image')
-                            ->label('Gambar(Optional)')
-                            ->uploadingMessage('Uploading...'), //logika belom jalan
+                            ->label('Gambar (Optional)')
+                            ->disk('public') // penting: gunakan disk yang tersedia
+                            ->directory('uploads')
+                            ->visibility('public')
+                            ->uploadingMessage('Uploading...')
                     ])
                     ->columns(1),
             ]);
